@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
- * @title CollateralizedToken
+ * @title ERC20Collateralized
  */
 contract ERC20Collateralized is ERC20Mintable, ERC20Burnable {
   using SafeERC20 for IERC20;
@@ -21,7 +21,7 @@ contract ERC20Collateralized is ERC20Mintable, ERC20Burnable {
   }
   
   /** 
-   * @dev Creates `amount` tokens and assigns them to `account`,
+   * @dev Creates `amount` tokens and assigns them to `to`,
    * increasing the total supply. Tokens can only be created if
    * the caller has a sufficient allowance of `baseToken`.
    * 
