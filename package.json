@@ -1,0 +1,21 @@
+{
+  "name": "erc20collateralized",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "truffle test",
+    "dev": "ganache-cli",
+    "compile": "truffle compile",
+    "lint": "solhint contracts/*.sol"
+  },
+  "author": "Rafael Kallis",
+  "license": "MIT",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "ganache-cli": "^6.4.3",
+    "openzeppelin-solidity": "^2.3.0",
+    "solhint": "^2.1.0",
+    "truffle": "^5.0.20"
+  }
+}
