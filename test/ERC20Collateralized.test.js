@@ -21,6 +21,8 @@ contract("ERC20Collateralized", (accounts) => {
     );
     collToken = await ERC20Collateralized.new(
       baseToken.address,
+      1000,
+      1,
       { from: collTokenOwner }
     );
     await baseToken.mint(
@@ -49,7 +51,7 @@ contract("ERC20Collateralized", (accounts) => {
   it("mint", async () => {
     await collToken.mint(
       user,
-      250,
+      250 * 1000,
       { from: collTokenOwner }
     );
 
@@ -59,21 +61,21 @@ contract("ERC20Collateralized", (accounts) => {
     assert.equal(0, await baseToken.balanceOf(user));
     assert.equal(250, await baseToken.balanceOf(collToken.address));
 
-    assert.equal(250, await collToken.totalSupply());
+    assert.equal(250 * 1000, await collToken.totalSupply());
     assert.equal(0, await collToken.balanceOf(baseTokenOwner));
     assert.equal(0, await collToken.balanceOf(collTokenOwner));
-    assert.equal(250, await collToken.balanceOf(user));
+    assert.equal(250 * 1000, await collToken.balanceOf(user));
   });
   
   it("burn", async () => {
     await collToken.mint(
       user,
-      500,
+      500 * 1000,
       { from: collTokenOwner }
     );
 
     await collToken.burn(
-      250,
+      250 * 1000,
       { from: user }
     );
     await baseToken.transferFrom(
@@ -89,11 +91,11 @@ contract("ERC20Collateralized", (accounts) => {
     assert.equal(250, await baseToken.balanceOf(user));
     assert.equal(250, await baseToken.balanceOf(collToken.address));
 
-    assert.equal(250, await collToken.totalSupply());
+    assert.equal(250 * 1000, await collToken.totalSupply());
     assert.equal(0, await collToken.balanceOf(baseTokenOwner));
     assert.equal(0, await collToken.balanceOf(collTokenOwner));
-    assert.equal(250, await collToken.balanceOf(user));
+    assert.equal(250 * 1000, await collToken.balanceOf(user));
   });
 
-  it("burnFrom", async () => {});
+  it.skip("burnFrom", async () => {});
 });

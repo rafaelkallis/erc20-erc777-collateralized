@@ -15,9 +15,19 @@ contract ERC20Collateralized is ERC20Mintable, ERC20Burnable {
 
   IERC20 baseToken;
 
-  constructor(IERC20 _baseToken) public {
+  uint256 xNom;
+  uint256 xDenom;
+
+  /**
+   * token = (xNom / xDenom) * baseToken
+   */
+  constructor(IERC20 _baseToken, uint256 _xNom, uint256 _xDenom) public {
     require(address(_baseToken) != address(0));
+    require(_xNom > 0);
+    require(_xDenom > 0);
     baseToken = _baseToken;
+    xNom = _xNom;
+    xDenom = _xDenom;
   }
   
   /** 
@@ -34,7 +44,7 @@ contract ERC20Collateralized is ERC20Mintable, ERC20Burnable {
    * - `amount` must be <= baseToken.allowance(msg.sender, address(this)).
    */
   function mint(address to, uint256 amount) public onlyMinter returns (bool) {
-    baseToken.safeTransferFrom(msg.sender, address(this), amount);
+    baseToken.safeTransferFrom(msg.sender, address(this), _toBase(amount));
     return super.mint(to, amount);
   }
 
@@ -50,7 +60,7 @@ contract ERC20Collateralized is ERC20Mintable, ERC20Burnable {
    */
   function burn(uint256 amount) public {
     super.burn(amount);
-    baseToken.safeApprove(msg.sender, amount);
+    baseToken.safeApprove(msg.sender, _toBase(amount));
   }
   
   /**
@@ -65,6 +75,20 @@ contract ERC20Collateralized is ERC20Mintable, ERC20Burnable {
    */
   function burnFrom(address account, uint256 amount) public {
     super.burnFrom(account, amount);
-    baseToken.safeApprove(account, amount);
+    baseToken.safeApprove(account, _toBase(amount));
+  }
+
+  /**
+   * baseAmount = amount * (1 / (xNom / xDenom))
+   */
+  function _toBase(uint256 amount) internal view returns (uint256) {
+    return amount.mul(xDenom).div(xNom);
+  }
+  
+  /**
+   * amount = baseAmount * (xNom / xDenom)
+   */
+  function _fromBase(uint256 baseAmount) internal view returns (uint256) {
+    return baseAmount.mul(xNom).div(xDenom);
   }
 }
