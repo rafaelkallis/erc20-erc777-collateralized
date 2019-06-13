@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "truffle test",
-    "dev": "ganache-cli",
+    "dev": "truffle develop",
     "compile": "truffle compile",
     "lint": "solhint contracts/*.sol"
   },
