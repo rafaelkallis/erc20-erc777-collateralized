@@ -1,5 +1,5 @@
 {
-  "name": "erc20collateralized",
+  "name": "erc20-erc777-collateralized",
   "version": "1.0.0",
   "description": "",
   "scripts": {
