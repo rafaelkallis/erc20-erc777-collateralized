@@ -1,7 +1,11 @@
 ## ERC20Collateralized
 
 Extension of `ERC20` that adds a reserve of a foreign `ERC20`
-token to collateralize the token. Useful for:
+token to collateralize the token. 
+
+> :warning: **This code has not been reviewed or audited.** :warning:
+
+Useful for:
 - creating a stable 2-way peg to any `ERC20` asset, or
 - creating derivatives of any `ERC20` asset
 
