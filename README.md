@@ -1,4 +1,4 @@
-### ERC20Collateralized
+## ERC20Collateralized
 
 Extension of `ERC20` that adds a reserve of a foreign `ERC20`
 token to collateralize the token. Useful for:
@@ -25,7 +25,7 @@ pragma solidity ^0.5.0;
 
 import "erc20collateralized/contracts/ERC20Collateralized.sol";
 
-contract MyCryptoFrancDerivative is ERC20Collateralized {
+contract MyCryptoFrancDerivative is ERC20, ERC20Collateralized {
   constructor () ERC20Collateralized(address(0xb4272071ecadd69d933adcd19ca99fe80664fc08), 1, 10) public {}
 }
 ```
