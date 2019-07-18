@@ -29,13 +29,19 @@ pragma solidity ^0.5.0;
 
 import "erc20collateralized/contracts/ERC20Collateralized.sol";
 
-contract MyCryptoFrancDerivative is ERC20, ERC20Collateralized {
-  constructor () ERC20Collateralized(address(0xb4272071ecadd69d933adcd19ca99fe80664fc08), 1, 10) public {}
+contract MyCryptoFrancDerivative is ERC20, ERC20Collateralized(address(0xb4272071ecadd69d933adcd19ca99fe80664fc08), 1, 10) {
+  
+  function _mintAdapter(uint256 amount) internal {
+    _mint(address(this), amount);
+  }
+  
+  function _burnAdapter(uint256 amount) internal {
+    _burn(address(this), amount);
+  }
 }
 ```
 
-Given the local user is the contract owner (has the `MinterRole`)
-we can interact with the contract like so:
+We can interact with the contract like so:
 
 ```js
 const owner = "0x...";
@@ -56,23 +62,36 @@ await cryptoFranc.approve(
   { from: owner }
 );
 
-// mint 5000 XCHF-derivatives and send to "user"
-await myCryptoFrancDerivative.mint(
-  user, 
+// lock 500 XCHF and mint 5000 XCHF-derivatives
+await myCryptoFrancDerivative.lockAndMint(
   500 * 10,
+  { from: owner }
+);
+
+// transfer 5000 XCHF-derivatives to "user"
+await myCryptoFrancDerivative.transfer(
+  user,
+  500 * 10
   { from: owner }
 );
 
 assert.equals(await cryptoFranc.balanceOf(owner), 0);
 assert.equals(await cryptoFranc.balanceOf(user), 0);
-// "myCryptoFrancDerivative" contract owns 500 XCHF
+// "myCryptoFrancDerivative" contract has 500 XCHF in its reserve
 assert.equals(await cryptoFranc.balanceOf(myCryptoFrancDerivative.address), 500);
 assert.equals(await myCryptoFrancDerivative.balanceOf(owner), 0);
 // "user" owns 5000 XCHF-derivatives
 assert.equals(await myCryptoFrancDerivative.balanceOf(user), 5000);
 
-// "user" burns 5000 XCHF-derivatives and receives 500 XCHF in return
-await myCryptoFrancDerivative.burn(
+// approve 5000 XCHF-derivatives to the MyCryptoFrancDerivative contract
+await myCryptoFrancDerivative.approve(
+  myCryptoFrancDerivative.address,
+  5000,
+  { from: user }
+);
+
+// "user" burns 5000 XCHF-derivatives and unlocks (receives) 500 XCHF in return
+await myCryptoFrancDerivative.burnAndUnlock(
   500 * 10,
   { from: user }
 );
@@ -80,6 +99,7 @@ await myCryptoFrancDerivative.burn(
 assert.equals(await cryptoFranc.balanceOf(owner), 0);
 // "user" owns 500 XCHF
 assert.equals(await cryptoFranc.balanceOf(user), 500);
+// "myCryptoFrancDerivative" contract has 0 XCHF in its reserve
 assert.equals(await cryptoFranc.balanceOf(myCryptoFrancDerivative.address), 0);
 assert.equals(await myCryptoFrancDerivative.balanceOf(owner), 0);
 assert.equals(await myCryptoFrancDerivative.balanceOf(user), 0);
