@@ -33,11 +33,10 @@ contract("ERC777Collateralized", ([_, registryFunder, baseTokenOwner, collTokenO
     assert.equal(1000, await baseToken.balanceOf(user));
     
     assert.equal(0, await collToken.totalSupply());
-
-    await baseToken.authorizeOperator(collToken.address, { from: user });
   });
 
   it("lockAndMint", async () => {
+    await baseToken.authorizeOperator(collToken.address, { from: user });
     await collToken.lockAndMint(250 * 1000, { from: user });
 
     assert.equal(1000, await baseToken.totalSupply());
@@ -49,6 +48,7 @@ contract("ERC777Collateralized", ([_, registryFunder, baseTokenOwner, collTokenO
   });
   
   it("burnAndUnlock", async () => {
+    await baseToken.authorizeOperator(collToken.address, { from: user });
     await collToken.lockAndMint(500 * 1000, { from: user });
     
     assert.equal(1000, await baseToken.totalSupply());
