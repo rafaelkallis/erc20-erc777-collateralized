@@ -27,11 +27,6 @@ contract("ERC20Collateralized", (accounts) => {
       1000, 
       { from: baseTokenOwner }
     );
-    await baseToken.approve(
-      collToken.address,
-      500,
-      { from: collTokenOwner }
-    );
 
     assert.equal(1000, await baseToken.totalSupply());
     assert.equal(1000, await baseToken.balanceOf(collTokenOwner));
@@ -40,6 +35,11 @@ contract("ERC20Collateralized", (accounts) => {
   });
 
   it("lockAndMint", async () => {
+    await baseToken.approve(
+      collToken.address,
+      250,
+      { from: collTokenOwner }
+    );
     await collToken.lockAndMint(250 * 1000, { from: collTokenOwner });
 
     assert.equal(1000, await baseToken.totalSupply());
@@ -51,6 +51,11 @@ contract("ERC20Collateralized", (accounts) => {
   });
   
   it("burnAndUnlock", async () => {
+    await baseToken.approve(
+      collToken.address,
+      500,
+      { from: collTokenOwner }
+    );
     await collToken.lockAndMint(500 * 1000, { from: collTokenOwner });
     
     assert.equal(1000, await baseToken.totalSupply());
