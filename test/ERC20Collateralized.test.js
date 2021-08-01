@@ -4,18 +4,15 @@
  */
 
 const ERC20CollateralizedMock = artifacts.require("ERC20CollateralizedMock");
-const ERC20Mintable = artifacts.require("ERC20Mintable");
+const ERC20MintableMock = artifacts.require("ERC20MintableMock");
 
-contract("ERC20Collateralized", (accounts) => {
-
-  const baseTokenOwner = accounts[1];
-  const collTokenOwner = accounts[2];
+contract("ERC20Collateralized", ([, baseTokenOwner, collTokenOwner]) => {
 
   let baseToken;
   let collToken;
 
   beforeEach(async () => {
-    baseToken = await ERC20Mintable.new({ from: baseTokenOwner });
+    baseToken = await ERC20MintableMock.new({ from: baseTokenOwner });
     collToken = await ERC20CollateralizedMock.new(
       baseToken.address,
       1000,

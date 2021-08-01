@@ -1,13 +1,12 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+pragma solidity ^0.8.0;
 
 /**
  * @title Collateralized
  * @author Rafael Kallis <rk@rafaelkallis.com>
  */
-contract Collateralized {
-  using SafeMath for uint256;
+abstract contract Collateralized {
   
   address private _baseToken;
   uint256 private _reserve;
@@ -17,24 +16,24 @@ contract Collateralized {
   /**
    * token = (xNom / xDenom) * baseToken
    */
-  constructor(address baseToken, uint256 xNom, uint256 xDenom) public {
+  constructor(address baseToken_, uint256 xNom_, uint256 xDenom_) {
     require(
-      baseToken != address(0),
+      baseToken_ != address(0),
       "Collateralized: base token contract cannot be the 0 address"
     );
     require(
-      xNom > 0,
-      "ERC777Collatelarized: nominator must be greater than 0."
+      xNom_ > 0,
+      "Collatelarized: nominator must be greater than 0"
     );
     require(
-      xDenom > 0,
-      "ERC777Collatelarized: denominator must be greater than 0."
+      xDenom_ > 0,
+      "Collatelarized: denominator must be greater than 0"
     );
     
-    _baseToken = baseToken;
+    _baseToken = baseToken_;
     _reserve = 0;
-    _xNom = xNom;
-    _xDenom = xDenom;
+    _xNom = xNom_;
+    _xDenom = xDenom_;
   }
 
   /** 
@@ -44,13 +43,13 @@ contract Collateralized {
    * sufficient tokens of the base token, as determined by the
    * exchange rate.
    */
-  function lockAndMint(uint256 amount) public;
+  function lockAndMint(uint256 amount) external virtual;
   
   /**
    * @dev Burns `amount` tokens from `sender`, reducing the
    * total supply. `recipient` is granted the equivaled amount of `_baseToken`.
    */
-  function burnAndUnlock(uint256 amount) public;
+  function burnAndUnlock(uint256 amount) external virtual;
 
   function baseToken() public view returns (address) {
     return _baseToken;
@@ -72,14 +71,14 @@ contract Collateralized {
    * baseAmount = amount * (1 / (xNom / xDenom))
    */
   function _toBase(uint256 amount) internal view returns (uint256) {
-    return amount.mul(_xDenom).div(_xNom);
+    return amount * _xDenom / _xNom;
   }
 
   function _increaseReserve(uint256 amount) internal {
-    _reserve = _reserve.add(amount);
+    _reserve += amount;
   }
 
   function _decreaseReserve(uint256 amount) internal {
-    _reserve = _reserve.sub(amount);
+    _reserve -= amount;
   }
 }

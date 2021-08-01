@@ -1,8 +1,8 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Mintable.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20Burnable.sol";
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../ERC20Collateralized.sol";
 
 /**
@@ -11,13 +11,15 @@ import "../ERC20Collateralized.sol";
  */
 contract ERC20CollateralizedMock is ERC20, ERC20Collateralized {
 
-  constructor(address baseToken, uint256 xNom, uint256 xDenom) public ERC20Collateralized(baseToken, xNom, xDenom) {}
+  constructor(address baseToken_, uint256 xNom_, uint256 xDenom_) 
+    ERC20("", "")
+    ERC20Collateralized(baseToken_, xNom_, xDenom_) {}
 
-  function _mintAdapter(uint256 amount) internal {
-    _mint(address(this), amount);
+  function _mintAdapter(address to, uint256 amount) internal virtual override {
+    _mint(to, amount);
   }
   
-  function _burnAdapter(uint256 amount) internal {
-    _burn(address(this), amount);
+  function _burnAdapter(address from, uint256 amount) internal virtual override {
+    _burn(from, amount);
   }
 }

@@ -3,10 +3,10 @@
  * @author Rafael Kallis <rk@rafaelkallis.com>
  */
 
-const { singletons } = require("openzeppelin-test-helpers");
+const { singletons } = require("@openzeppelin/test-helpers");
 
 const ERC777CollateralizedMock = artifacts.require("ERC777CollateralizedMock");
-const ERC777Mintable = artifacts.require("ERC777Mintable");
+const ERC777MintableMock = artifacts.require("ERC777MintableMock");
 
 contract("ERC777Collateralized", ([_, registryFunder, baseTokenOwner, collTokenOwner, user]) => {
 
@@ -16,7 +16,7 @@ contract("ERC777Collateralized", ([_, registryFunder, baseTokenOwner, collTokenO
 
   beforeEach(async () => {
     erc1820 = await singletons.ERC1820Registry(registryFunder);
-    baseToken = await ERC777Mintable.new({ from: baseTokenOwner });
+    baseToken = await ERC777MintableMock.new({ from: baseTokenOwner });
     collToken = await ERC777CollateralizedMock.new(
       baseToken.address,
       1000,

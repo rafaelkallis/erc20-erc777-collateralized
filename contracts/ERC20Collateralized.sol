@@ -1,45 +1,47 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
 
-import "openzeppelin-solidity/contracts/token/ERC20/SafeERC20.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
-import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "./Collateralized.sol";
 
 /**
  * @title ERC20Collateralized
  * @author Rafael Kallis <rk@rafaelkallis.com>
  */
-contract ERC20Collateralized is IERC20, Collateralized, Ownable {
+abstract contract ERC20Collateralized is Context, IERC20, Collateralized, AccessControl {
   using SafeERC20 for IERC20;
+  
+  bytes32 public constant LOST_TOKEN_CLAIMER_ROLE = keccak256("LOST_TOKEN_CLAIMER_ROLE");
 
-  constructor(address baseToken, uint256 xNom, uint256 xDenom) public Collateralized(baseToken, xNom, xDenom) {}
+  constructor(address baseToken_, uint256 xNom_, uint256 xDenom_) Collateralized(baseToken_, xNom_, xDenom_) {}
   
   /** 
    * @dev See `Collateralized.lockAndMint`.
    */
-  function lockAndMint(uint256 amount) public {
-    IERC20(baseToken()).safeTransferFrom(msg.sender, address(this), _toBase(amount));
-    _mintAdapter(amount);
+  function lockAndMint(uint256 amount) external virtual override {
+    IERC20(baseToken()).safeTransferFrom(_msgSender(), address(this), _toBase(amount));
+    _mintAdapter(_msgSender(), amount);
     _increaseReserve(_toBase(amount));
-    SafeERC20.safeTransfer(this, msg.sender, amount);
   }
   
   /** 
    * @dev See `Collateralized.burnAndUnlock`.
    */
-  function burnAndUnlock(uint256 amount) public {
-    SafeERC20.safeTransferFrom(this, msg.sender, address(this), amount);
+  function burnAndUnlock(uint256 amount) external virtual override {
+    _burnAdapter(_msgSender(), amount);
     _decreaseReserve(_toBase(amount));
-    _burnAdapter(amount);
-    IERC20(baseToken()).safeTransfer(msg.sender, _toBase(amount));
+    IERC20(baseToken()).safeTransfer(_msgSender(), _toBase(amount));
   }
 
-  function claimLostTokens() public onlyOwner {
-    uint256 lostTokens = IERC20(baseToken()).balanceOf(address(this)).sub(reserve());
-    IERC20(baseToken()).transfer(msg.sender, lostTokens);
+  function claimLostTokens() public onlyRole(LOST_TOKEN_CLAIMER_ROLE) {
+    uint256 lostTokens = IERC20(baseToken()).balanceOf(address(this)) - reserve();
+    IERC20(baseToken()).transfer(_msgSender(), lostTokens);
   }
 
-  function _mintAdapter(uint256 amount) internal;
-  function _burnAdapter(uint256 amount) internal;
+  function _mintAdapter(address to, uint256 amount) internal virtual;
+  function _burnAdapter(address from, uint256 amount) internal virtual;
 }
